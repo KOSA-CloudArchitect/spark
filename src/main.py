@@ -49,9 +49,9 @@ raw = (spark.readStream
 parsed_df = raw.select(F.from_json(F.col("value").cast("string"), review_json_schema).alias("data"))
 
 # 디버깅: 스트리밍 시작 로그
-print(f"[DEBUG] Starting data processing with PER_RECORD_MODE: {PER_RECORD_MODE}")
-print(f"[DEBUG] CHECKPOINT_PATH: {CHECKPOINT_PATH}")
-print(f"[DEBUG] Input topic: {INPUT_TOPIC}, Output topic: {OUTPUT_TOPIC}")
+# print(f"[DEBUG] Starting data processing with PER_RECORD_MODE: {PER_RECORD_MODE}")
+# print(f"[DEBUG] CHECKPOINT_PATH: {CHECKPOINT_PATH}")
+# print(f"[DEBUG] Input topic: {INPUT_TOPIC}, Output topic: {OUTPUT_TOPIC}")
 
 # 처리량 모니터링을 위한 간단한 카운터
 from pyspark.sql.functions import count
@@ -261,8 +261,8 @@ query = (output_df.writeStream
         .option("kafka.enable.auto.commit", "true")   # 자동 커밋으로 처리량 확인 가능
         .start())
 
-print(f"[DEBUG] Streaming query started successfully!")
-print(f"[DEBUG] Waiting for data from topic: {INPUT_TOPIC}")
-print(f"[DEBUG] Processing mode: {'PER_RECORD_MODE' if PER_RECORD_MODE else 'BATCH_MODE'}")
+# print(f"[DEBUG] Streaming query started successfully!")
+# print(f"[DEBUG] Waiting for data from topic: {INPUT_TOPIC}")
+# print(f"[DEBUG] Processing mode: {'PER_RECORD_MODE' if PER_RECORD_MODE else 'BATCH_MODE'}")
 
 spark.streams.awaitAnyTermination()
