@@ -36,7 +36,7 @@ review_json_schema = StructType([
     StructField("crawled_at", StringType(), True)
 ])
 
-# 1) Kafka에서 실시간 스트림 읽기
+# Kafka에서 실시간 스트림 읽기
 raw = (spark.readStream
         .format("kafka")
         .option("kafka.bootstrap.servers", BOOTSTRAP)
@@ -45,7 +45,7 @@ raw = (spark.readStream
         .option("failOnDataLoss", "false")
         .load())
 
-# 2) 데이터 파싱 및 필터링
+# 데이터 파싱 및 필터링
 parsed_df = raw.select(F.from_json(F.col("value").cast("string"), review_json_schema).alias("data"))
 
 # 디버깅: 스트리밍 시작 로그
@@ -54,7 +54,7 @@ parsed_df = raw.select(F.from_json(F.col("value").cast("string"), review_json_sc
 # print(f"[DEBUG] Input topic: {INPUT_TOPIC}, Output topic: {OUTPUT_TOPIC}")
 
 # 처리량 모니터링을 위한 간단한 카운터
-from pyspark.sql.functions import count
+#from pyspark.sql.functions import count
 
 
 # 데이터 컬럼 이름 정규화
