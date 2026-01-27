@@ -71,19 +71,20 @@ transformed_df = (parsed_df.select("data.*")
     .withColumn("review_help_count", F.col("review_help_count").cast("int"))
 )
 
+# 날짜 정규화(yyyy.MM.dd -> yyyy-MM-dd)
+normalized_df = transformed_df.withColumn("review_date_norm", F.regexp_replace(F.col("review_date"), "[.]", "-"))
+
 # 분석 편의를 위한 플래그 추가 (행 제거 없음)
-cleaned_df = (transformed_df
+cleaned_df = (normalized_df
     .withColumn("is_coupang_trial", F.when(F.col("review_text").like("쿠팡체험단%"), F.lit(1)).otherwise(F.lit(0)))
     .withColumn("is_empty_review", F.when(
         F.col("review_text").isNull() | (F.length(F.trim(F.col("review_text"))) == 0), F.lit(1)
     ).otherwise(F.lit(0)))
 )
 
-# 날짜 정규화(yyyy.MM.dd -> yyyy-MM-dd)
-normalized_df = cleaned_df.withColumn("review_date_norm", F.regexp_replace(F.col("review_date"), "[.]", "-"))
 
 # 데이터 품질 검증 (정규화된 날짜 기준)
-quality_df = (normalized_df
+quality_df = (cleaned_df
     .withColumn("is_valid_rating", F.col("rating").between(0.0, 5.0))
     .withColumn("is_valid_date", F.to_timestamp(F.col("review_date_norm"), "yyyy-MM-dd").isNotNull())
     .withColumn("has_content", F.col("is_empty_review") == 0)
