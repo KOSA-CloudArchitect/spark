@@ -17,6 +17,15 @@ spark = (SparkSession.builder
         .getOrCreate())
 print(f"[BOOT] CHECKPOINT_PATH= {CHECKPOINT_PATH}")
 
+# Kafka에서 실시간 스트림 읽기
+raw = (spark.readStream
+        .format("kafka")
+        .option("kafka.bootstrap.servers", BOOTSTRAP)
+        .option("subscribe", INPUT_TOPIC)
+        .option("startingOffsets", "latest")
+        .option("failOnDataLoss", "false")
+        .load())
+
 # 리뷰 데이터 JSON 스키마 정의
 review_json_schema = StructType([
     StructField("job_id", StringType(), True),
@@ -35,15 +44,6 @@ review_json_schema = StructType([
     StructField("review_help_cnt", StringType(), True),
     StructField("crawled_at", StringType(), True)
 ])
-
-# Kafka에서 실시간 스트림 읽기
-raw = (spark.readStream
-        .format("kafka")
-        .option("kafka.bootstrap.servers", BOOTSTRAP)
-        .option("subscribe", INPUT_TOPIC)
-        .option("startingOffsets", "latest")
-        .option("failOnDataLoss", "false")
-        .load())
 
 # 데이터 파싱 및 필터링
 parsed_df = raw.select(F.from_json(F.col("value").cast("string"), review_json_schema).alias("data"))
